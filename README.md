@@ -9,7 +9,7 @@
 ### Composer
 
 ```bash
-composer require antchain/alipay-util
+composer require antchain/antchain-util
 ```
 
 ## 问题

@@ -1,12 +1,11 @@
 <?php
 
-// This file is auto-generated, don't edit it. Thanks.
-namespace AntChain\Alipay\Util;
+namespace AntChain\Util;
 
 /**
  * This is a utility module
  */
-class Util {
+class UtilClient {
 
     /**
      * Get timestamp.
