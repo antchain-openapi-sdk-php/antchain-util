@@ -1,6 +1,6 @@
 {
-  "name": "alipaycloud/alipay-util",
-  "description": "Alipay Cloud Util Library for PHP",
+  "name": "antchain/alipay-util",
+  "description": "Ant Chain Util Library for PHP",
   "type": "library",
   "license": "Apache-2.0",
   "authors": [],
@@ -13,12 +13,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Alipaycloud\\Alipay\\Util\\": "src"
+      "AntChain\\Alipay\\Util\\": "src"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Alipaycloud\\Alipay\\Util\\Tests\\": "tests"
+      "AntChain\\Alipay\\Util\\Tests\\": "tests"
     }
   },
   "scripts": {
