@@ -31,4 +31,9 @@ class UtilClientTest extends TestCase
 
         $this->assertEquals('rcDNNSTdufjwCpRqzFpoV5bC0IU=', UtilClient::getSignature($params, 'secret'));
     }
+
+    public function testHasError()
+    {
+        $this->assertFalse(UtilClient::hasError(['response'=>['result_code'=>'OK']]));
+    }
 }
