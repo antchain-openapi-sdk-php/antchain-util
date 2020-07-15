@@ -3,19 +3,19 @@
 namespace AntChain\Util;
 
 /**
- * This is a utility module
+ * This is a utility module.
  */
-class UtilClient {
-
+class UtilClient
+{
     /**
      * Get timestamp.
      *
      * @example 2006-01-02T15:04:05Z
      * @error no error throws
      *
-     * @return string string
-     *
      * @throws \Exception
+     *
+     * @return string string
      */
     public static function getTimestamp()
     {
@@ -30,9 +30,9 @@ class UtilClient {
      *
      * @param array $res the response
      *
-     * @return bool boolean
-     *
      * @throws \Exception
+     *
+     * @return bool boolean
      */
     public static function hasError($res)
     {
@@ -40,9 +40,10 @@ class UtilClient {
             return false;
         }
         $response = $res['response'];
-        if (isset($response['result_code']) && 'ok' !== $response['result_code']) {
+        if (isset($response['result_code']) && 'ok' !== strtolower($response['result_code'])) {
             return true;
         }
+
         return false;
     }
 
@@ -55,9 +56,9 @@ class UtilClient {
      * @param array  $signedParams the signed string
      * @param string $secret       the accesskey secret
      *
-     * @return string signature string
-     *
      * @throws \Exception
+     *
+     * @return string signature string
      */
     public static function getSignature($signedParams, $secret)
     {
