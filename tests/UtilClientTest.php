@@ -3,6 +3,7 @@
 namespace AntChain\Util\Tests;
 
 use AntChain\Util\UtilClient;
+use GuzzleHttp\Psr7\Stream;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -11,6 +12,33 @@ use PHPUnit\Framework\TestCase;
  */
 class UtilClientTest extends TestCase
 {
+    public function testGetTimestamp()
+    {
+        $this->assertEquals(20, \strlen(UtilClient::getTimestamp()));
+    }
+
+    public function testHasError()
+    {
+        $this->assertTrue(UtilClient::hasError('testInvalidJson', 'secret'));
+
+        $this->assertTrue(UtilClient::hasError('{"noResponse":"true"}', 'secret'));
+
+        // result_code is not ok
+        $res = '{"response":{"expired_time":"2021-01-04T17:04:42.072+08:00","file_id":"kjiac1a298f8d","req_msg_id":"79e093b3ae0f3f2c1","result_code":"false"},"sign":"IUl/4uLq7utFnsjF1Zy6B6OWbCg="}';
+        $this->assertTrue(UtilClient::hasError($res, 'secret'));
+
+        // not have sign
+        $res = '{"response":{"expired_time":"2021-01-04T17:04:42.072+08:00","file_id":"kjiac1a298f8d","req_msg_id":"79e093b3ae0f3f2c1","result_code":"OK"}}';
+        $this->assertTrue(UtilClient::hasError($res, 'secret'));
+
+        // wrong sign
+        $res = '{"response":{"expired_time":"2021-01-04T17:04:42.072+08:00","file_id":"kjiac1a298f8d","req_msg_id":"79e093b3ae0f3f2c1","result_code":"OK"},"sign":"IUl/4uLqtFnsjF1Zy6B6OWbCg=';
+        $this->assertTrue(UtilClient::hasError($res, 'secret'));
+
+        $res = '{"response":{"expired_time":"2021-01-04T17:04:42.072+08:00","file_id":"kjiac1a298f8d","req_msg_id":"79e093b3ae0f3f2c1","result_code":"OK"},"sign":"IUl/4uLq7utFnsjF1Zy6B6OWbCg="}';
+        $this->assertFalse(UtilClient::hasError($res, 'secret'));
+    }
+
     public function testSignature()
     {
         $params = [
@@ -30,10 +58,49 @@ class UtilClientTest extends TestCase
         );
 
         $this->assertEquals('rcDNNSTdufjwCpRqzFpoV5bC0IU=', UtilClient::getSignature($params, 'secret'));
+
+        $signedParam = [
+            'req_msg_id'       => '462b26b053d611eb82176c96cfdde571',
+            'method'           => 'demo.gateway.check.echo',
+            'version'          => '2.0.0',
+            'input_string'     => 'OK',
+            'sign_type'        => 'HmacSHA1',
+            'req_time'         => '2021-01-11T06:28:53Z',
+            'access_key'       => 'ACn9BRjVEJfaPeeI',
+            'base_sdk_version' => 'Tea-SDK',
+            'sdk_version'      => 'Tea-SDK-20201203',
+            'file_id'          => 'kjs6qx6xad54d8c0',
+            'fileObject'       => new Stream(fopen('data://text/plain;base64,' . base64_encode('This is test file content.'), 'r')),
+        ];
+        $str         = 'access_key=ACn9BRjVEJfaPeeI&base_sdk_version=Tea-SDK&file_id=kjs6qx6xad54d8c0&input_string=OK&method=demo.gateway.check.echo&req_msg_id=462b26b053d611eb82176c96cfdde571&req_time=2021-01-11T06%3A28%3A53Z&sdk_version=Tea-SDK-20201203&sign_type=HmacSHA1&version=2.0.0';
+        $this->assertEquals($str, UtilClient::getSignatureString($signedParam));
     }
 
-    public function testHasError()
+    public function testParseUploadHeaders()
     {
-        $this->assertFalse(UtilClient::hasError(['response'=>['result_code'=>'OK']]));
+        $res = UtilClient::parseUploadHeaders([]);
+        $this->assertCount(0, $res);
+
+        $res = UtilClient::parseUploadHeaders('{"test":"ok"}');
+        $this->assertCount(0, $res);
+
+        $res = UtilClient::parseUploadHeaders([
+            ['name' => 'content-type', 'value' => 'text'],
+        ]);
+        $this->assertEquals('text', $res['content-type']);
+    }
+
+    public function testGetNonce()
+    {
+        $this->assertEquals(32, \strlen(UtilClient::getNonce()));
+    }
+
+    public function testGetSignature()
+    {
+        $signedParams = [
+            'test' => 'ok',
+        ];
+        $sign         = UtilClient::getSignature($signedParams, 'secret');
+        $this->assertEquals('qlB4B1lFcehlWRelL7Fo4uNHPCs=', $sign);
     }
 }
