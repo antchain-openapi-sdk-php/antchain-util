@@ -6,6 +6,7 @@ use AlibabaCloud\Tea\Exception\TeaError;
 use AlibabaCloud\Tea\OSSUtils\OSSUtils;
 use AlibabaCloud\Tea\Tea;
 use AlibabaCloud\Tea\Utils\Utils;
+use DateTime;
 use Exception;
 use GuzzleHttp\Psr7\Stream;
 
@@ -49,7 +50,7 @@ class UtilClient
         }
         $response = $data['response'];
         if (isset($response['result_code']) && 'ok' !== strtolower($response['result_code'])) {
-            return true;
+            return false;
         }
         if (!isset($data['sign'])) {
             return true;
@@ -92,7 +93,7 @@ class UtilClient
      *
      * @throws \GuzzleHttp\Exception\GuzzleException
      *
-     * @return null|TeaError
+     * @return TeaError|null
      */
     public static function putObject($item, $headers, $urlPath)
     {
@@ -172,5 +173,44 @@ class UtilClient
         }
 
         return implode('&', $params);
+    }
+
+    /**
+     * Judge upload if ok or not.
+     * *
+     * @example resultCode == successCode or resultCode == ok is true
+     * @error no error throws
+     *
+     * @param string $resultCode
+     * @param string $successCode
+     *
+     * @return bool the boolean
+     */
+    public static function isSuccess($resultCode, $successCode)
+    {
+        $resultCode  = strtolower($resultCode);
+        $successCode = strtolower($successCode);
+
+        return 'ok' === $resultCode || $resultCode === $successCode;
+    }
+
+    /**
+     * @param string $dateStr
+     *
+     * @return Datetime
+     */
+    public static function parseDate($dateStr)
+    {
+        return new DateTime($dateStr);
+    }
+
+    /**
+     * @param Datetime $datetime
+     *
+     * @return string
+     */
+    public static function formatDate($datetime, $format='Y-m-d H:i:s')
+    {
+        return $datetime->format($format);
     }
 }
